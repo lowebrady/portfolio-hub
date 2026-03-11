@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brady Lowe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0F0E0C;
+      --surface: #17160F;
+      --border: #2C2A22;
+      --text: #EDE9E0;
+      --muted: #7A7567;
+      --ux: #8B7CF6;
+      --analytics: #C8472B;
+      --warm: #E8A87C;
+      --cream: #F5F0E8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: rgba(15,14,12,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+    }
+
+    .nav-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .nav-status::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 6px #4ade80;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 3rem 5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.1s forwards;
+    }
+
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(3.5rem, 9vw, 7.5rem);
+      font-weight: 300;
+      line-height: 0.95;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.2s forwards;
+    }
+
+    .hero h1 .name { color: var(--text); }
+    .hero h1 .descriptor { color: var(--muted); font-style: italic; }
+    .hero h1 .ux-word { color: var(--ux); font-style: italic; }
+    .hero h1 .data-word { color: var(--analytics); }
+
+    .hero-bio {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.85;
+      font-weight: 300;
+      margin-bottom: 4rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.35s forwards;
+    }
+
+    .hero-bio strong {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    /* ── PORTFOLIO CARDS ── */
+    .portfolio-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease 0.5s forwards;
+    }
+
+    .portfolio-card {
+      position: relative;
+      padding: 2.5rem;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      display: block;
+    }
+
+    .portfolio-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .portfolio-card.ux-card::after {
+      background: radial-gradient(ellipse at bottom left, rgba(139,124,246,0.12) 0%, transparent 70%);
+    }
+
+    .portfolio-card.analytics-card::after {
+      background: radial-gradient(ellipse at bottom left, rgba(200,71,43,0.12) 0%, transparent 70%);
+    }
+
+    .portfolio-card:hover { transform: translateY(-4px); }
+    .portfolio-card.ux-card:hover { border-color: rgba(139,124,246,0.4); }
+    .portfolio-card.analytics-card:hover { border-color: rgba(200,71,43,0.4); }
+    .portfolio-card:hover::after { opacity: 1; }
+
+    .card-type {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .ux-card .card-type { color: var(--ux); }
+    .analytics-card .card-type { color: var(--analytics); }
+
+    .card-type::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 1px;
+    }
+
+    .ux-card .card-type::before { background: var(--ux); }
+    .analytics-card .card-type::before { background: var(--analytics); }
+
+    .portfolio-card h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 1rem;
+      line-height: 1.15;
+    }
+
+    .portfolio-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .card-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 2rem;
+    }
+
+    .skill-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .card-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: gap 0.2s ease;
+    }
+
+    .ux-card .card-cta { color: var(--ux); }
+    .analytics-card .card-cta { color: var(--analytics); }
+    .portfolio-card:hover .card-cta { gap: 1rem; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      max-width: 1100px;
+      margin: 6rem auto 0;
+      padding: 0 3rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── ABOUT SECTION ── */
+    .about {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 3rem 8rem;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 5rem;
+      align-items: start;
+    }
+
+    .about-left {
+      position: sticky;
+      top: 6rem;
+    }
+
+    .about-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .about-left h2 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      font-weight: 300;
+      line-height: 1.15;
+      color: var(--text);
+    }
+
+    .about-left h2 em {
+      font-style: italic;
+      color: var(--warm);
+    }
+
+    .about-right p {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.9;
+      font-weight: 300;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-right p strong {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .about-facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      margin-top: 2.5rem;
+      border: 1px solid var(--border);
+      background: var(--border);
+    }
+
+    .fact {
+      background: var(--surface);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .fact-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .fact-value {
+      font-size: 0.9rem;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 100%;
+    }
+
+    footer p {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .hero { padding: 6rem 1.5rem 4rem; }
+      .portfolio-cards { grid-template-columns: 1fr; }
+      .about { grid-template-columns: 1fr; gap: 2.5rem; padding: 4rem 1.5rem 6rem; }
+      .about-left { position: static; }
+      .divider { padding: 0 1.5rem; margin-top: 4rem; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="#">BRADY LOWE</a>
+    <span class="nav-status">Open to opportunities · May 2026</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-eyebrow">Portfolio Hub · Michigan State University</p>
+    <h1>
+      <span class="name">Brady</span><br>
+      <span class="ux-word">Lowe</span><span class="descriptor"> —</span><br>
+      <span class="data-word">designer</span><span class="descriptor"> &amp; analyst.</span>
+    </h1>
+    <p class="hero-bio">
+      I'm a graduating senior at MSU studying <strong>Information Science</strong> — 
+      bridging two disciplines that are better together: <strong>UX design</strong> grounded in user research, 
+      and <strong>data analytics</strong> that tells a human story. 
+      I'm at my best when problems are messy and the user is at the center.
+    </p>
+
+    <div class="portfolio-cards">
+
+      <a class="portfolio-card ux-card" href="https://lowebrady.github.io" target="_blank" rel="noopener">
+        <p class="card-type">UX / UI Design</p>
+        <h2>Design Portfolio</h2>
+        <p>Usability testing, accessibility auditing, qualitative research, and responsive builds — grounded in empathy and evidence.</p>
+        <div class="card-skills">
+          <span class="skill-pill">Figma</span>
+          <span class="skill-pill">Usability Testing</span>
+          <span class="skill-pill">WCAG Accessibility</span>
+          <span class="skill-pill">QDA Miner</span>
+          <span class="skill-pill">HTML / CSS / JS</span>
+          <span class="skill-pill">User Interviews</span>
+        </div>
+        <span class="card-cta">View UX Work →</span>
+      </a>
+
+      <a class="portfolio-card analytics-card" href="https://lowebrady.github.io/analytics-portfolio" target="_blank" rel="noopener">
+        <p class="card-type">Data Analytics</p>
+        <h2>Analytics Portfolio</h2>
+        <p>From YouTube trends to transit ridership — turning raw datasets into clear, actionable insights through Excel, R, Python, and SQL.</p>
+        <div class="card-skills">
+          <span class="skill-pill">Python / Pandas</span>
+          <span class="skill-pill">R / ggplot2</span>
+          <span class="skill-pill">Excel</span>
+          <span class="skill-pill">SQL</span>
+          <span class="skill-pill">A/B Testing</span>
+          <span class="skill-pill">Data Visualization</span>
+        </div>
+        <span class="card-cta">View Analytics Work →</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-label">About Brady</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about">
+    <div class="about-left">
+      <p class="about-tag">// Who I Am</p>
+      <h2>Researcher.<br>Designer.<br><em>Builder.</em></h2>
+    </div>
+    <div class="about-right">
+      <p>
+        I came to UX through a mix of <strong>psychology, technology, and a genuine curiosity</strong> about why some products feel effortless and others feel like work. At Michigan State, I've built that curiosity into a full practice — running usability studies, auditing for accessibility, conducting qualitative research, and building the interfaces myself in code.
+      </p>
+      <p>
+        On the analytics side, I completed the <strong>Global Technology Experience Data Analysis track</strong>, where I worked with real datasets across transportation, e-commerce, and consumer behavior. I believe good analysis isn't just about the numbers — it's about telling the right story to the right people.
+      </p>
+      <p>
+        What makes me different is that I hold both. I <strong>design with data</strong> and <strong>analyze with empathy</strong>. That combination gives me an edge in roles where research, design, and decision-making overlap: UX research ops, product analytics, and customer insights.
+      </p>
+      <p>
+        Outside of portfolio work, I'm a <strong>freelance graphic designer</strong> and the <strong>VP of Delta Kappa Epsilon Fraternity</strong>. I bring the same systems thinking to every project — understand the problem, find the signal in the noise, communicate clearly.
+      </p>
+
+      <div class="about-facts">
+        <div class="fact">
+          <p class="fact-label">School</p>
+          <p class="fact-value">Michigan State University</p>
+        </div>
+        <div class="fact">
+          <p class="fact-label">Degree</p>
+          <p class="fact-value">B.A. Information Science</p>
+        </div>
+        <div class="fact">
+          <p class="fact-label">Graduating</p>
+          <p class="fact-value">May 2026</p>
+        </div>
+        <div class="fact">
+          <p class="fact-label">Location</p>
+          <p class="fact-value">Metro Detroit, MI</p>
+        </div>
+        <div class="fact">
+          <p class="fact-label">Seeking</p>
+          <p class="fact-value">UX Research · Product Analytics</p>
+        </div>
+        <div class="fact">
+          <p class="fact-label">Status</p>
+          <p class="fact-value">Open to all opportunities</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 Brady Lowe</p>
+    <div class="footer-links">
+      <a href="https://www.linkedin.com/in/brady-lowe-2290871bb" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://lowebrady.github.io" target="_blank" rel="noopener">UX Portfolio</a>
+      <a href="https://lowebrady.github.io/analytics-portfolio" target="_blank" rel="noopener">Analytics Portfolio</a>
+    </div>
+  </footer>
+
+</body>
+</html>
